@@ -1,0 +1,213 @@
+---
+output: html_document
+---
+
+
+<br/>
+**Banco Central del Ecuador** </br>
+**Dirección Nacional de Programación y Regulación Monetaria y Financiera** </br>
+
+**Empleo registrado en el IESS** </br>
+Octubre 2022
+
+Empleo registrado en el Instituto Ecuatoriano de Seguridad Social (IESS) por rama de actividad con base en la Clasificación Industrial Internacional Uniforme (CIIU). </br>
+
+Datos a junio 2022 </br>
+**Fuente:** [INEC - REESS](https://www.ecuadorencifras.gob.ec/registro-empleo-seguridad-social/)
+<br/><br/>
+
+
+```{r, setup, include=FALSE}
+# Directorio
+dir <- 'D:/DNPRMF/Programacion Sector Real/Indicadores/Empleo IESS'
+
+knitr::opts_knit$set(root.dir = dir)
+setwd(dir)
+```
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# Librerias
+pacman::p_load(tidyverse, readxl, openxlsx, dplyr, ggplot2, ggfortify, foreign, 
+               timeDate, forecast, xts, urca, tseries, lubridate, stringi, 
+               stringr, reshape2, expsmooth, seasonal, Metrics)
+
+# Colores
+paleta <- c('#1E4976', '#5FA3BF', '#BBBE64', '#EFCB68', '#E5825E', '#D05022')
+
+# Archivo
+archivo <- 'Resultados/empleo_iess_2022_06.xlsx'
+```
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# Carga de datos (script de R de procesamiento)
+df <- data.frame(read_excel(archivo, sheet = 'empleo'))
+labels_ciiu <- data.frame(read_excel(archivo, sheet = 'labels'))
+```
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# Condiciones para series de graficos
+
+anios_p <- 4
+
+max_anio <- max(df$anio)
+df <- df[df$anio >= (max_anio - anios_p),] # Datos historicos
+
+df$mes2 <- month.abb[month(df$mes)]
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(kableExtra)
+
+colnames(labels_ciiu) <- c('Código CIIU', 'Industria')
+
+kable(labels_ciiu) %>%
+  kable_styling('striped', full_width = F, font_size = 12) %>%
+  scroll_box(width = '100%', height = '200px')
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(highcharter)
+
+# Opciones para hchart
+hcoptslang <- getOption('highcharter.lang')
+hcoptslang$decimalPoint <- ','
+hcoptslang$thousandsSep <- '.'
+options(highcharter.lang = hcoptslang)
+
+# Figuras
+hchart_empleo <- list()
+
+for (ind in 1:nrow(labels_ciiu)) {
+  hchart_empleo[[labels_ciiu[ind, 1]]] <- 
+    hchart(df[df$ciiu == labels_ciiu[ind, 1],], 
+           'line',
+           hcaes(x = mes2, y = empleo, group = anio),
+           color = paleta[1:(anios_p + 1)]) %>% 
+    hc_title(text = labels_ciiu[ind, 2],
+             style = list(fontSize = '14px', 
+                          fontWeight = 'bold')) %>% 
+    hc_yAxis(title = list(text = 'Empleo registrado',
+                          style = list(fontWeight = 'bold'))) %>% 
+    hc_xAxis(title = list(text = '')) %>% 
+    hc_plotOptions(
+      line = list(
+        marker = list(
+          fillColor = 'white',
+          lineWidth = 2,
+          lineColor = NULL,
+          symbol = 'circle', 
+          radius = 3
+        ))) %>%
+    hc_legend(itemStyle = list(fontSize = '11px')) %>% 
+    hc_size(width = 750, height = 400)
+}
+```
+
+
+
+#### {.tabset}
+
+##### <span style="font-size:12px"> A </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$A
+```
+
+##### <span style="font-size:12px"> B </span>
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$B
+```
+
+##### <span style="font-size:12px"> C </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$C
+```
+
+##### <span style="font-size:12px"> D </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$D
+```
+
+##### <span style="font-size:12px"> E </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$E
+```
+
+##### <span style="font-size:12px"> F </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$F
+```
+
+##### <span style="font-size:12px"> G </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$G
+```
+
+##### <span style="font-size:12px"> H </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$H
+```
+
+##### <span style="font-size:12px"> I </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$I
+```
+
+##### <span style="font-size:12px"> J </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$J
+```
+
+##### <span style="font-size:12px"> K </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$K
+```
+
+##### <span style="font-size:12px"> L </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$L
+```
+
+##### <span style="font-size:12px"> M </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$M
+```
+
+##### <span style="font-size:12px"> N </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$N
+```
+
+##### <span style="font-size:12px"> O </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$O
+```
+
+##### <span style="font-size:12px"> P </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$P
+```
+
+##### <span style="font-size:12px"> Q </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$Q
+```
+
+##### <span style="font-size:12px"> R </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$R
+```
+
+##### <span style="font-size:12px"> S </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$S
+```
+
+##### <span style="font-size:12px"> T </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$T
+```
+
+##### <span style="font-size:12px"> U </span> 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+hchart_empleo$U
+```
